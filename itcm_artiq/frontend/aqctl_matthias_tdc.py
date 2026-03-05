@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 import sipyco.common_args as sca
 from sipyco.pc_rpc import simple_server_loop
-from devices.matthias_tdc.driver import MatthiasTDC
+from itcm_artiq.devices.matthias_tdc.driver import MatthiasTDC
 
 def get_argparser():
     parser = argparse.ArgumentParser(
