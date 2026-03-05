@@ -1,0 +1,14 @@
+[project]
+name = "itcm-artiq-devices"
+version = "0.1.0"
+description = "ARTIQ device drivers"
+requires-python = ">=3.10"
+
+dependencies = [
+    "numpy",
+    "pyserial",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.backends.legacy:build"
