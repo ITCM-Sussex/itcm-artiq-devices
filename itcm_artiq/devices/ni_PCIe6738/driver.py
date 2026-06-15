@@ -23,3 +23,21 @@ class NI_PCIe6738Counter:
     
     def close(self):
         self.task.close()
+
+class NI_PCIe6738AO:
+    """Driver for National Instruments PCIe-6738 analogue outputs"""
+
+    def __init__(self, device="DC_DAC"):
+        self.device = device
+
+    def set_voltage(self, channel, voltage):
+        """Set a single AO channel voltage. Channel is an integer 0-31."""
+        with nidaqmx.Task() as task:
+            task.ao_channels.add_ao_voltage_chan(f"{self.device}/ao{channel}")
+            task.write(voltage)
+
+    def ping(self):
+        return True
+    
+    def close(self):
+        self.task.close()

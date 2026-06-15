@@ -4,13 +4,13 @@ import logging
 import sipyco.common_args as sca
 from sipyco.pc_rpc import simple_server_loop
 
-from itcm_artiq.devices.ni_PCIe6738.driver import NI_PCIe6738Counter
+from itcm_artiq.devices.ni_PCIe6738.driver import NI_PCIe6738Counter, NI_PCIe6738AO
 
 logger = logging.getLogger(__name__)
 
 def get_argparser():
     parser = argparse.ArgumentParser(
-        description="ARTIQ controller for National Instruments 32 channel DAC")
+        description="ARTIQ controller for National Instruments 32 channel DAC PCIe card")
     parser.add_argument ("-d",
                          "--device",
                          default="DC_DAC",
@@ -27,11 +27,12 @@ def main():
 
     logger.debug("Trying to establish connection to PCIe6738 card")
     counter = NI_PCIe6738Counter(args.device)
+    ao = NI_PCIe6738AO(args.device)
     logger.debug("Connection estabished.")
 
     try:
         logger.info("Starting server at port {}...".format(args.port))
-        simple_server_loop({"pmt_counter": counter}, sca.bind_address_from_args(args), args.port)
+        simple_server_loop({"pmt_counter": counter, "ao_driver": ao}, sca.bind_address_from_args(args), args.port)
     finally:
         counter.close()
 
