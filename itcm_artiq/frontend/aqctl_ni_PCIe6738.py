@@ -32,7 +32,7 @@ def main():
 
     try:
         logger.info("Starting server at port {}...".format(args.port))
-        simple_server_loop({"pmt_counter": counter, "ao_driver": ao}, sca.bind_address_from_args(args), args.port)
+        simple_server_loop({"pmt_counter": counter, "laser_control": ao}, sca.bind_address_from_args(args), args.port)
     finally:
         counter.close()
 
