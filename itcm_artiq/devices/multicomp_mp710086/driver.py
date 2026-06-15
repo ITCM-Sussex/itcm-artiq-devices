@@ -1,36 +1,36 @@
-import serial
+import pyvisa
 import logging
 
 logger = logging.getLogger(__name__)
 
 class MulticompMP710086:
-    '''Driver for Multicomp MP710086 power supply'''
-
-class MulticompMP710086:
     '''Driver for Multicomp MP710086 single channel DC power supply.'''
 
-    def __init__(self, device, timeout=10):
-        logger.debug("Opening Multicomp MP710086 on %s", device)
-        self.stream = serial.serial_for_url(device, baudrate=115200, timeout=timeout, write_timeout=timeout)
+    def __init__(self, resource_name, timeout=10000):
+        logger.debug("Opening Multicomp MP710086 on %s", resource_name)
+        rm = pyvisa.ResourceManager()
+        self.instrument = rm.open_resource(resource_name)
+        self.instrument.timeout = timeout
+        self.instrument.read_termination = '\n'
+        self.instrument.write_termination = '\n'
+        self.instrument.baud_rate = 115200
         logger.debug("Multicomp MP710086 opened")
 
     def _send(self, command):
         '''Send a SCPI command string.'''
-        self.stream.write((command + "\n").encode())
+        self.instrument.write(command)
 
     def _query(self, command):
         '''Send a SCPI query and return the response as a stripped string.'''
-        self._send(command)
-        return self.stream.readline().decode().strip()
+        return self.instrument.query(command).strip()
 
     def ping(self):
         return True
 
     def close(self):
-        self.stream.close()
+        self.instrument.close()
 
     # IEEE488.2 common commands
-
     def identify(self):
         '''Query the ID string of the instrument.'''
         return self._query("*IDN?")
@@ -40,7 +40,6 @@ class MulticompMP710086:
         self._send("*RST")
 
     # Output control
-
     def set_output(self, enabled: bool):
         '''Enable or disable the output.'''
         logger.debug("Setting output to %s", enabled)
@@ -51,7 +50,6 @@ class MulticompMP710086:
         return bool(int(self._query("OUTP?")))
 
     # Voltage
-
     def set_voltage(self, voltage: float):
         '''Set the output voltage in volts.'''
         logger.debug("Setting voltage to %.4f V", voltage)
@@ -75,7 +73,6 @@ class MulticompMP710086:
         return float(self._query("VOLT:LIM?"))
 
     # Current
-
     def set_current(self, current: float):
         '''Set the output current in amps.'''
         logger.debug("Setting current to %.4f A", current)
@@ -99,7 +96,6 @@ class MulticompMP710086:
         return float(self._query("CURR:LIM?"))
 
     # Power
-
     def get_power(self) -> float:
         '''Measure the power on the output terminal in watts.'''
         return float(self._query("MEAS:POW?"))
