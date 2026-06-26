@@ -24,9 +24,14 @@ def main():
     args = get_argparser().parse_args()
     sca.init_logger_from_args(args)
 
+    logging.info("Trying to establish connection "
+                 "to TDC at {}...".format(args.device))
+
     dev = MatthiasTDC(args.device)
+    logging.info("Established connection.")
 
     try:
+        logging.info("Starting server at port {}...".format(args.port))
         simple_server_loop({"MatthiasTDC":dev}, args.bind, args.port)
     finally:
         dev.close()

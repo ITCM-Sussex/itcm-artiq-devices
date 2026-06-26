@@ -9,10 +9,13 @@ class MatthiasTDC:
     '''Driver for Matthias black box TDC'''
 
     def __init__(self, device, baud_rate=9600, timeout=10):
-       
+        logger.debug("Opening Matthias TDC on %s", device)
+
         self._pic = PICComm(device, baudrate = baud_rate, timeout=10, write_timeout=timeout)
 
         self.finished = False #finished flag
+        logger.debug("TDC opened")
+
 
     def ping(self):
         return True
@@ -22,7 +25,7 @@ class MatthiasTDC:
         
     def check_status(self):
         '''This function checks the status of the TDC.'''
-        
+        logger.debug("Checking status")
         response = self._pic.send_command('a', recv_bytes =6)
 
         # Extract status from response
