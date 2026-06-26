@@ -13,7 +13,7 @@ class PICComm():
         self.lock = threading.Lock()
 
         logger.debug("Opening PIC device...")
-        self.ser = serial.serial_for_url(port, baudrate=baud_rate, timeout=timeout)
+        self.ser = serial.serial_for_url(port, baud_rate=baud_rate, timeout=timeout)
         logger.debug("PIC device opened")
         
 
