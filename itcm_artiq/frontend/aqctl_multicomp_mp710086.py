@@ -13,7 +13,7 @@ def get_argparser():
         description="ARTIQ controller for Multicomp MP710086 PSU")
     parser.add_argument("-d",
                         "--device",
-                        default="COM11",
+                        default="USB0::0x5345::0x1235::2037788::INSTR",
                         help="hardware address of device")
     sca.simple_network_args(parser, 4310)
     sca.verbosity_args(parser)
