@@ -13,6 +13,12 @@ class MatthiasTDC:
         self._pic = PICComm(device, baudrate = baud_rate, timeout=10, write_timeout=timeout)
 
         self.finished = False #finished flag
+
+    def ping(self):
+        return True
+    
+    def close(self):
+        self._pic.close()
         
     def check_status(self):
         '''This function checks the status of the TDC.'''

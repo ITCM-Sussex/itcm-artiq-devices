@@ -11,7 +11,10 @@ from itcm_artiq.devices.matthias_tdc.driver import MatthiasTDC
 def get_argparser():
     parser = argparse.ArgumentParser(
         description = "ARTIQ controller for Matthias black box TDC")
-    parser.add_argument("-d", "--device", help = "device's hardware address")
+    parser.add_argument("-d", 
+                        "--device",
+                        default="COM6",
+                        help = "device's hardware address")
     sca.simple_network_args(parser, 4001)
     sca.verbosity_args(parser)
 
