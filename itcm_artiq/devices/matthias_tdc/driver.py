@@ -11,7 +11,7 @@ class MatthiasTDC:
     def __init__(self, device, baud_rate=9600, timeout=10):
         logger.debug("Opening Matthias TDC on %s", device)
 
-        self._pic = PICComm(device, baudrate = baud_rate, timeout=10, write_timeout=timeout)
+        self._pic = PICComm(device, baud_rate = baud_rate, timeout=10, write_timeout=timeout)
 
         self.finished = False #finished flag
         logger.debug("TDC opened")
