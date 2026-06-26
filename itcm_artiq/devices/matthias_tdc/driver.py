@@ -1,7 +1,7 @@
 import numpy as np
 import logging
 
-from devices.pic_comms import PICComm
+from itcm_artiq.devices.pic_comms import PICComm
 
 logger = logging.getLogger(__name__)
 
