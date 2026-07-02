@@ -29,7 +29,7 @@ class PICComm():
             number of bytes expected back. Unless specified, this equals the number of bytes sent.
         '''
         with self.lock:
-            payload = cmd_char.encode('latin-1') + bytes(data_bytes)
+            payload = cmd_char.encode('latin-1') + bytes(int(b) for b in data_bytes)
             if recv_bytes is None:
                 recv_bytes = len(payload)
             padding = bytes([0x01] * (recv_bytes - len(payload)))

@@ -9,12 +9,12 @@ class MatthiasTDC:
     '''Driver for Matthias black box TDC'''
 
     def __init__(self, device, baud_rate=9600, timeout=10):
-        logger.debug("Opening Matthias TDC on %s", device)
+        logger.info("Opening Matthias TDC on %s", device)
 
         self._pic = PICComm(device, baud_rate = baud_rate, timeout=timeout)
 
         self.finished = False #finished flag
-        logger.debug("TDC opened")
+        logger.info("TDC opened")
 
 
     def ping(self):
@@ -25,13 +25,15 @@ class MatthiasTDC:
         
     def check_status(self):
         '''This function checks the status of the TDC.'''
-        logger.debug("Checking status")
+        logger.info("Checking status")
         response = self._pic.send_command('a', recv_bytes =6)
 
         # Extract status from response
         status = response[0]
         stop_number = (response[1] << 8) | response[2]
         start_number = (response[3] << 8) | response[4]
+
+        logger.info(f"Status: {status}, # Starts: {start_number}, # Stops: {stop_number}")
 
         return status, start_number, stop_number 
     
@@ -40,6 +42,8 @@ class MatthiasTDC:
         '''This function starts the TDC measurement.'''
 
         self.finished = False
+
+        logger.debug("Starting ")
 
         response = self._pic.send_command('g')
 
@@ -54,7 +58,8 @@ class MatthiasTDC:
         measurement_time: float
             time to measure for, s
         histogram_length: int
-            length of histogram recorded by TDC == max. delay after start trigger to record a stop, ns
+            length of histogram recorded by TDC == max. 
+            delay after start trigger to record a stop, ns
         resolution: int
             bin width of histogram, ns
         '''
@@ -82,7 +87,12 @@ class MatthiasTDC:
 
 
             #Rearrange 
-            measurement_time_bytes = [high_word_high_byte, high_word_low_byte, low_word_low_byte, low_word_high_byte]
+            measurement_time_bytes = [
+                high_word_high_byte,
+                high_word_low_byte, 
+                low_word_high_byte, 
+                low_word_low_byte
+                ]
 
             if tdc_mode_string == 'fast':
                 tdc_mode = bytes([1])
@@ -91,25 +101,33 @@ class MatthiasTDC:
 
             #Count mode (unused mode)
             counts = 0
-            counts_bytes = [(counts >> 24) & 0xFF, (counts >> 16) & 0xFF, (counts >> 8) & 0xFF, (counts) & 0xFF]
+            counts_bytes = [
+                (counts >> 24) & 0xFF, 
+                (counts >> 16) & 0xFF, 
+                (counts >> 8) & 0xFF, 
+                (counts) & 0xFF
+                ]
             measurement_mode = bytes([0]) # = measure for chosen length of time, 1 would be to record until total counts reach 'counts'
 
             # Convert histogram length to number of bins
-            bin_number = np.int16(np.ceil(histogram_length / histogram_resolution))
+            bin_number = int(np.ceil(histogram_length / histogram_resolution))
             bin_number_bytes = [(bin_number >> 8) & 0xFF, bin_number & 0xFF]
 
             # Convert histogram resolution with scaling factor
-            histogram_resolution_scaled = np.int16(np.ceil(histogram_resolution / 0.055))
-            histogram_resolution_bytes = [(histogram_resolution_scaled >> 8) & 0xFF, histogram_resolution_scaled & 0xFF]
+            histogram_resolution_scaled = int(np.ceil(histogram_resolution / 0.055))
+            histogram_resolution_bytes = [
+                (histogram_resolution_scaled >> 8) & 0xFF,
+                histogram_resolution_scaled & 0xFF
+                ]
 
             # Make data array to parse to PIC comm
             data_array = list(measurement_time_bytes) + list(measurement_mode) + list(tdc_mode) + list(counts_bytes) + list(bin_number_bytes) + list(histogram_resolution_bytes)
-        
-
+            
             # Send to PIC
+            logger.debug(f"sent cmd h + {data_array}")
             response = self._pic.send_command('h', data_array, 13)
 
-            #logger.info(f'set up response: {response}')
+            logger.debug(f'set up response: {response}')
 
             return bin_number
 
