@@ -28,10 +28,13 @@ class MatthiasTDC:
         logger.info("Checking status")
         response = self._pic.send_command('a', recv_bytes =6)
 
+        if response[0] != 97:
+            logger.warning("Response\command mismatch")
+
         # Extract status from response
-        status = response[0]
-        stop_number = (response[1] << 8) | response[2]
-        start_number = (response[3] << 8) | response[4]
+        status = response[1]
+        stop_number = (response[2] << 8) | response[3]
+        start_number = (response[4] << 8) | response[5]
 
         logger.info(f"Status: {status}, # Starts: {start_number}, # Stops: {stop_number}")
 
@@ -43,9 +46,12 @@ class MatthiasTDC:
 
         self.finished = False
 
-        logger.debug("Starting ")
+        logger.debug("Starting measurement")
 
         response = self._pic.send_command('g')
+
+        if response[0] != 103:
+            logger.warning("Response\command mismatch")
 
         return response
     
@@ -125,7 +131,7 @@ class MatthiasTDC:
             
             # Send to PIC
             logger.debug(f"sent cmd h + {data_array}")
-            response = self._pic.send_command('h', data_array, 13)
+            response = self._pic.send_command('h', data_array)
 
             logger.debug(f'set up response: {response}')
 
