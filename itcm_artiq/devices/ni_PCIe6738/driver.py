@@ -27,17 +27,35 @@ class NI_PCIe6738Counter:
 class NI_PCIe6738AO:
     """Driver for National Instruments PCIe-6738 analogue outputs"""
 
-    def __init__(self, device="DC_DAC"):
+    def __init__(self, device="DC_DAC", channels=None):
         self.device = device
+        self.tasks = {}
+        for ch in (channels or []):
+            try:
+                t = nidaqmx.Task()
+                t.ao_channels.add_ao_voltage_chan(f"{device}/ao{ch}")
+                self.tasks[ch] = t
+                logger.info("NI_PCIe6738AO reserved channels: %s", list(self.tasks))
+            except nidaqmx.errors.DaqError as e:
+                logger.error("Failed to reserve AO channel %s: %s", ch, e)
+                raise
 
     def set_voltage(self, channel, voltage):
         """Set a single AO channel voltage. Channel is an integer 0-31."""
-        with nidaqmx.Task() as task:
-            task.ao_channels.add_ao_voltage_chan(f"{self.device}/ao{channel}")
-            task.write(voltage)
+        if channel not in self.tasks:
+            logger.error(
+                "Attempted to set voltage on unreserved channel %s (reserved: %s)",
+                channel, list(self.tasks)
+            )
+            raise ValueError(
+                f"Channel {channel} is not reserved by this driver. "
+                f"Reserved channels: {list(self.tasks)}"
+            )
+        self.tasks[channel].write(voltage)
 
     def ping(self):
         return True
     
     def close(self):
-        self.task.close()
+        for t in self.tasks.values():
+            t.close()

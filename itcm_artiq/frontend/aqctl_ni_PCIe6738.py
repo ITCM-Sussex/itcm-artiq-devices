@@ -20,7 +20,6 @@ def get_argparser():
 
     return parser
 
-
 def main():
     args= get_argparser().parse_args()
     sca.init_logger_from_args(args)
@@ -35,6 +34,7 @@ def main():
         simple_server_loop({"pmt_counter": counter, "laser_control": ao}, sca.bind_address_from_args(args), args.port)
     finally:
         counter.close()
+        ao.close()
 
 if __name__ == "__main__":
     main()
