@@ -10,6 +10,9 @@ class AndorEMCCD:
         self.cam = Andor.AndorSDK2Camera()
         info = self.cam.get_device_info()
         logger.info("Connected to %s (serial %s)", info.head_model, info.serial_number)
+        self.set_fan_mode(0)
+        _fan_mode = self.get_fan_mode()
+        logger.info("Fan mode %s", _fan_mode)
 
     def ping(self):
         return True
@@ -99,7 +102,7 @@ class AndorEMCCD:
         logger.info("Accumulation params: %s", params)
         return params
 
-    # Temperature 
+    # Temperature/fan
     def get_temperature(self):
         temp = self.cam.get_temperature()
         logger.debug("Temperature: %s", temp)
@@ -109,6 +112,16 @@ class AndorEMCCD:
         status = self.cam.get_status()
         logger.debug("Camera status: %s", status)
         return status
+
+    def set_fan_mode(self, mode):
+        """Mode: 0 = full, 1 = low, 2 = off"""
+        logger.info("Setting fan mode to %s", mode)
+        self.cam.set_fan_mode(mode)
+
+    def get_fan_mode(self):
+        mode = self.cam.get_fan_mode()
+        logger.info("Fan mode: %s", mode)
+        return mode
 
     # Acquire signal
     def get_frame(self):
