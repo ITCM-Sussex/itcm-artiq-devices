@@ -29,7 +29,7 @@ class MatthiasTDC:
         response = self._pic.send_command('a', recv_bytes =6)
 
         if response[0] != 97:
-            logger.warning("Response\command mismatch")
+            logger.warning("Response command mismatch")
 
         # Extract status from response
         status = response[1]
@@ -51,7 +51,7 @@ class MatthiasTDC:
         response = self._pic.send_command('g')
 
         if response[0] != 103:
-            logger.warning("Response\command mismatch")
+            logger.warning("Response command mismatch")
 
         return response
     
@@ -89,8 +89,6 @@ class MatthiasTDC:
 
             high_word_low_byte = high_word & 0xFF
             high_word_high_byte = (high_word >> 8) & 0xFF
-
-
 
             #Rearrange 
             measurement_time_bytes = [
