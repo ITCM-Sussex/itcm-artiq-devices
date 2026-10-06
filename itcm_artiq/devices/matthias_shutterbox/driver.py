@@ -35,11 +35,11 @@ class MatthiasShutterBox:
         return rep_rate, delay, usb_or_ttl_ctrl, on_angles, off_angles
 
     def write_shutter_setup(self, rep_rate, delay, ext_ttl_control, on_angles, off_angles):
-        usb_ttl_byte = sum(int(bit) << i for i, bit in enumerate(ext_ttl_control))
+        usb_ttl_byte = [sum(int(bit) << i for i, bit in enumerate(ext_ttl_control))]
         on_angle_bytes = self._angles_to_bytes(on_angles)
         off_angle_bytes = self._angles_to_bytes(off_angles)
 
-        data_array = list(bytes(rep_rate)) + list(bytes(delay)) + list(usb_ttl_byte) + list(on_angle_bytes) + list(off_angle_bytes)
+        data_array = list(bytes([rep_rate])) + list(bytes([delay])) + list(bytes(usb_ttl_byte)) + list(on_angle_bytes) + list(off_angle_bytes)
 
         logger.debug(f"sent cmd w + {data_array}")
         response = self._pic.send_command('w', data_array)
@@ -52,9 +52,9 @@ class MatthiasShutterBox:
         positions = [bool(response[1] & (1 << i)) for i in range(8)]
         return positions
 
-    def write_shutter_position(self, positions):
-        position_byte = sum(int(bit) << i for i, bit in enumerate(positions))
-        response = self._pic.send_command('s',data_bytes=list(position_byte))
+    def write_shutter_positions(self, positions):
+        position_byte = [sum(int(bit) << i for i, bit in enumerate(positions))]
+        response = self._pic.send_command('s',data_bytes=list(bytes(position_byte)))
         return position_byte
 
     def _angles_to_bytes(self, angles):
